@@ -12,6 +12,7 @@ def get_user_currencies(path_settings:str='user_settings.json') -> list:
         user_settings = json.load(file)
     return user_settings["user_currencies"]
 
+
 def get_user_stocks(path_settings:str='user_settings.json') -> list:
     """Функция принимает на вход файл пользовательских настроек (по умолчанию user_settings.json)
     и возвращает список акций для отображения их цены"""
@@ -19,9 +20,10 @@ def get_user_stocks(path_settings:str='user_settings.json') -> list:
         user_settings = json.load(file)
     return user_settings["user_stocks"]
 
+
 def get_exchange_rate_api(base_currency:str = 'RUB') -> None:
-    """Функция принимает валюту, по умолчанию - рубль и
-    возвращает api ответ с текущими курсами валют в формате json, также сохраняя его в кэш"""
+    """Функция принимает валюту, по умолчанию - рубль, формирует api запрос,
+     сохраняет ответ в файл data/rates"""
     load_dotenv()
     apikey = os.getenv("API_KEY_RATES")
     url = f'https://v6.exchangerate-api.com/v6/{apikey}/latest/{base_currency}'
@@ -69,7 +71,6 @@ def check_rate_cache(cache_path='data/rates.json') -> bool:
         return False
 
 
-
 def get_user_rates(cache_path='data/rates.json') -> list[dict]:
     """Проверяет есть ли актуальный кэш с курсом валют, да, то, берет данные из списка валют и вычисляет текущий курс,
     если нет, вызывает функцию получения данных по api, затем берет данные файла"""
@@ -105,6 +106,45 @@ def get_user_rates(cache_path='data/rates.json') -> list[dict]:
             continue
     return currency_rates
 
+def get_current_stock_prices_api(tickers:list) -> list|None:
+    """Принимает на вход список акций в виде тикеров, например 'SBER',
+    получает текущие цены акций с Мосбиржи, и сохраняет в файл data/stocks_json
+    возвращает список словарей с названием акций из списка и последней ценой"""
+    url = 'https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQBR/securities.json'
 
+    params = {
+        'iss.meta': 'off',  # отключаем метаданные
+        'iss.only': 'securities,marketdata',  # запрашиваем базовую информацию и рыночные данные
+        'securities.columns': 'SECID,SHORTNAME',  # базовая информация
+        'marketdata.columns': 'SECID,LAST,CHANGE,VALTODAY'  # рыночные данные: последняя цена, изменение, объём
+    }
+    try:
+        response = requests.get(url, params=params, timeout=10)
+    except requests.exceptions.RequestException as e:
+        print(f'Network error {e}')
+        return None
+    status_code = response.status_code
+    if status_code == 200:
+        try:
+            result = response.json()
+        except json.JSONDecodeError:
+            print("Некорректный ответ сервера")
+            return None
+        os.makedirs('data', exist_ok=True)
+        with open('data/stocks.json', 'w', encoding='utf-8') as f:
+            json.dump(result, f, indent=4, ensure_ascii=False)
 
+        all_stocks_price_list =  result.get("marketdata").get("data")
+        stocks_price_list = []
+        for ticker in tickers:
+            for _ in all_stocks_price_list:
+                if _[0] == ticker:
+                    out_dict = {"stock" :  ticker, "price" : _[1]}
+                    stocks_price_list.append(out_dict)
+        return stocks_price_list
+
+    else:
+        print(f"Ошибка: статус-код {status_code}")
+        print(response.text)
+        return None
 

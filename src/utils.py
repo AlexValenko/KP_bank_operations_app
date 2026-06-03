@@ -73,18 +73,19 @@ def get_total_amount_and_cashback(df:pd.DataFrame, standard_cashback:bool=True)-
       "cashback": float(total_cashback_by_card)
     }
 
-def get_top_transactions_by_card(df:pd.DataFrame) -> list:
-    """Принимает Dataframe с транзакциями по одной карте, сортирует транзакции по расходам,
+def get_top_transactions(df:pd.DataFrame) -> list:
+    """Принимает Dataframe с транзакциями, сортирует транзакции по расходам,
     выводит топ-5 операций в виде словаря, или, если операций меньше - выводит все имеющиеся"""
     sorted_by_amount_transactions_df = df.sort_values(by=['Сумма операции'], ascending=True, na_position='first')
+    filtered_empty_date_df = sorted_by_amount_transactions_df[sorted_by_amount_transactions_df["Дата платежа"].notna()]
 
-    rows_count = len(sorted_by_amount_transactions_df)
+    rows_count = len(filtered_empty_date_df)
     if rows_count > 5:
         rows_to_show = 5
     else:
         rows_to_show = rows_count
 
-    top_transactions = sorted_by_amount_transactions_df.head(rows_to_show)
+    top_transactions = filtered_empty_date_df.head(rows_to_show)
     top_transactions_list = []
     for index, item in top_transactions.iterrows():
         top_transactions_dict = {"date": (item["Дата платежа"]).strftime("%d-%m-%Y"), "amount": item["Сумма операции"],
