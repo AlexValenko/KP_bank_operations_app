@@ -114,3 +114,14 @@ def get_top_transactions(df: pd.DataFrame) -> list:
         }
         top_transactions_list.append(top_transactions_dict)
     return top_transactions_list
+
+def filter_transaction_by_category_for_cashback(df: pd.DataFrame, excluded_category: list) -> pd.DataFrame:
+    """Функция фильтрует загруженный DataFrame: статус операции - ОК, Дата операции - есть, Сумма операции < 0 (списание)
+    Категория не включает ['Пополнения', 'Переводы', 'Финансы', 'Проценты', 'Бонусы', 'Наличные']"""
+    filtered_by_status_and_is_date = df[
+        (df['Статус'] == "OK") &
+        (df['Дата операции'].notna()) &
+        (df['Сумма операции'] < 0) &
+        (~df['Категория'].isin(excluded_category))]
+    return filtered_by_status_and_is_date
+
