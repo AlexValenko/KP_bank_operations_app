@@ -39,3 +39,14 @@ def get_cashback_categories(data: pd.DataFrame, year:int, month:int) -> json:
     result = cashback_by_categories.to_dict()
     return json.dumps(result, ensure_ascii=False)
 
+def investment_bank(month: str, transactions: List[Dict[str, Any]], limit: int) -> float:
+    """Функция возвращает сумму, которую удалось бы отложить в «Инвесткопилку».
+    принимать на вход три аргумента:
+    month — месяц, для которого рассчитывается отложенная сумма (строка в формате 'YYYY-MM').
+    transactions — список словарей, содержащий информацию о транзакциях, в которых содержатся следующие поля:
+    Дата операции — дата, когда произошла транзакция (строка в формате 'YYYY-MM-DD').
+    Сумма операции — сумма транзакции в оригинальной валюте (число).
+    limit — предел, до которого нужно округлять суммы операций (целое число).
+    """
+    pass
+

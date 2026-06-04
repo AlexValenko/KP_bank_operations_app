@@ -8,7 +8,7 @@ from src.services import get_cashback_categories
 import datetime
 
 if __name__ == "__main__":
-    all_data_transactions = get_transaction_from_excel('data/operations.xlsx')
+    all_data_transactions = get_transaction_from_excel('tests/test_data/test_operations.xlsx')
     test_df = get_cashback_categories(data=all_data_transactions, year=2026, month=4)
     print(test_df)
 
