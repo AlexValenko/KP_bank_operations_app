@@ -58,3 +58,6 @@ exclude = 'venv'
 
 [tool.isort]
 line_length = 119
+
+[tool.poetry]
+package-mode = false

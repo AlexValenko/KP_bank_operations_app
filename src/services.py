@@ -1,4 +1,6 @@
 import datetime
+from typing import Optional
+
 from dateutil.relativedelta import relativedelta
 
 import pandas as pd
@@ -62,5 +64,8 @@ def investment_bank(month: str, transactions: pd.DataFrame, limit: int) -> float
     investment_bank_df["Округление"] = abs(investment_bank_df["Сумма операции"]).map(lambda x: 0.0 if (x % limit) == 0 else limit - (x % limit))
     print(investment_bank_df.head(5))
     return round(investment_bank_df["Округление"].sum(),2)
+
+
+
 
 
