@@ -56,7 +56,7 @@ def filter_transactions_by_date(
         start_date = datetime.datetime(year=2000, month=1, day=1)
     if end_date is None:
         end_date = datetime.datetime.now()
-    filtered_by_date_df = df[(df["Дата операции"] >= start_date) & (df["Дата операции"] <= end_date)]
+    filtered_by_date_df = df[df['Дата операции'].notna() & (df["Дата операции"] >= start_date) & (df["Дата операции"] <= end_date)]
     return filtered_by_date_df
 
 

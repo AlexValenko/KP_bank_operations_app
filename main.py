@@ -6,6 +6,7 @@ from src.utils import get_transaction_from_excel, get_cards_list_from_data, filt
 from src.views import get_greeting, get_main_page_data
 from src.external_api import get_user_currencies, get_exchange_rate_api, check_rate_cache, get_user_rates, get_user_stocks, get_current_stock_prices_api
 from src.services import get_cashback_categories, investment_bank
+from src.reports import spending_by_category
 import datetime
 
 if __name__ == "__main__":
@@ -13,8 +14,11 @@ if __name__ == "__main__":
     # test_df = get_cashback_categories(data=all_data_transactions, year=2026, month=4)
     # print(test_df)
     all_data_transactions = get_transaction_from_excel(path_xlsx='tests/test_data/test_operations.xlsx')
-    month_invest_sum = investment_bank(month='2026-04', transactions=all_data_transactions, limit=50)
-    print(month_invest_sum)
+    # month_invest_sum = investment_bank(month='2026-04', transactions=all_data_transactions, limit=50)
+    # print(month_invest_sum)
+    kat = spending_by_category(transactions=all_data_transactions,category="Медицина")
+    print(kat)
+
 
 
 
