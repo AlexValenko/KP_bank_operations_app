@@ -9,8 +9,8 @@ from src.utils import filter_transactions_by_date, filter_transaction_by_categor
 EXCLUDED_CATEGORY = ['Пополнения', 'Переводы', 'Финансы', 'Проценты', 'Бонусы', 'Наличные']
 
 """Сервисы:
-Выгодные категории повышенного кешбэка - DONE
-Инвесткопилка
+Выгодные категории повышенного кешбэка - Готово
+Инвесткопилка - Готово
 Простой поиск
 Поиск по телефонным номерам
 Поиск переводов физическим лицам"""
@@ -39,14 +39,28 @@ def get_cashback_categories(data: pd.DataFrame, year:int, month:int) -> json:
     result = cashback_by_categories.to_dict()
     return json.dumps(result, ensure_ascii=False)
 
-def investment_bank(month: str, transactions: List[Dict[str, Any]], limit: int) -> float:
+
+def investment_bank(month: str, transactions: pd.DataFrame, limit: int) -> float:
     """Функция возвращает сумму, которую удалось бы отложить в «Инвесткопилку».
-    принимать на вход три аргумента:
+    Принимает на вход три аргумента:
     month — месяц, для которого рассчитывается отложенная сумма (строка в формате 'YYYY-MM').
-    transactions — список словарей, содержащий информацию о транзакциях, в которых содержатся следующие поля:
-    Дата операции — дата, когда произошла транзакция (строка в формате 'YYYY-MM-DD').
+    transactions — DataFrame pandas с банковскими операциями.
     Сумма операции — сумма транзакции в оригинальной валюте (число).
     limit — предел, до которого нужно округлять суммы операций (целое число).
     """
-    pass
+    # Получение объекта datetime из входящей строки
+    start_current_month = datetime.datetime.strptime(month, "%Y-%m")
+    end_current_month = start_current_month + relativedelta(months=1)
+
+    # Фильтруем транзакции по дате за выбранный месяц
+    filtered_by_date_df = filter_transactions_by_date(df=transactions, start_date=start_current_month, end_date=end_current_month)
+    # Фильтруем транзакции, оставляя только покупки исключая категории:
+    # ['Пополнения', 'Переводы', 'Проценты', 'Бонусы', 'Наличные']
+    investment_bank_df = filter_transaction_by_category_for_cashback(df=filtered_by_date_df,
+                                                                          excluded_category=['Пополнения', 'Переводы', 'Проценты', 'Бонусы', 'Наличные'])
+    # Добавляем в таблицу новое поле "Округление"
+    investment_bank_df["Округление"] = abs(investment_bank_df["Сумма операции"]).map(lambda x: 0.0 if (x % limit) == 0 else limit - (x % limit))
+    print(investment_bank_df.head(5))
+    return round(investment_bank_df["Округление"].sum(),2)
+
 
