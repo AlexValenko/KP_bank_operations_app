@@ -17,12 +17,14 @@ if __name__ == "__main__":
     # all_data_transactions = get_transaction_from_excel(path_xlsx='data/operations.xlsx')
     # month_invest_sum = investment_bank(month='2026-04', transactions=all_data_transactions, limit=50)
     # print(month_invest_sum)
-    kat = spending_by_weekday(transactions=all_data_transactions)
+    # kat = spending_by_weekday(transactions=all_data_transactions)
+    # result_dict = spending_by_weekday(transactions=all_data_transactions, date='01-04-2026').to_dict()
+    # print(result_dict)
+    # kat_dict = spending_by_weekday(transactions=all_data_transactions, date='01-04-2026').to_dict('records')
+    # print(kat_dict)
+    kat = spending_by_category(transactions=all_data_transactions, category='Медицина', date='01-06-2026').to_dict('records')
     print(kat)
-    kat_dict = kat.to_dict()
-    print(kat_dict)
-    friday = kat_dict.get('Сумма операции').get('Пятница')
-    print(friday)
+
 
 
 
