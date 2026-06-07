@@ -56,7 +56,9 @@ def filter_transactions_by_date(
         start_date = datetime.datetime(year=2000, month=1, day=1)
     if end_date is None:
         end_date = datetime.datetime.now()
-    filtered_by_date_df = df[(df["Дата операции"] >= start_date) & (df["Дата операции"] <= end_date)]
+    filtered_by_date_df = df[
+        df["Дата операции"].notna() & (df["Дата операции"] >= start_date) & (df["Дата операции"] <= end_date)
+    ]
     return filtered_by_date_df
 
 
@@ -114,3 +116,18 @@ def get_top_transactions(df: pd.DataFrame) -> list:
         }
         top_transactions_list.append(top_transactions_dict)
     return top_transactions_list
+
+
+def filter_transaction_by_category_for_cashback(
+    df: pd.DataFrame, excluded_category: list, currency: str = "RUB"
+) -> pd.DataFrame:
+    """Функция фильтрует загруженный DataFrame: статус операции - ОК, Дата операции - есть, Сумма операции < 0
+    (списание). Категория не включает ['Пополнения', 'Переводы', 'Финансы', 'Проценты', 'Бонусы', 'Наличные']"""
+    filtered_by_status_and_is_date = df[
+        (df["Статус"] == "OK")
+        & (df["Дата операции"].notna())
+        & (df["Сумма операции"] < 0)
+        & (~df["Категория"].isin(excluded_category))
+        & (df["Валюта платежа"] == currency)
+    ]
+    return filtered_by_status_and_is_date

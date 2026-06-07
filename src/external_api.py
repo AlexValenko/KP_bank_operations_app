@@ -81,7 +81,7 @@ def check_rate_cache(cache_path="data/rates.json") -> bool:
         return False
 
 
-def get_user_rates(cache_path="data/rates.json") -> list[dict]:
+def get_user_rates(cache_path: str = "data/rates.json") -> list[dict]:
     """Проверяет есть ли актуальный кэш с курсом валют, да, то, берет данные из списка валют и вычисляет текущий курс,
     если нет, вызывает функцию получения данных по api, затем берет данные файла"""
     user_currencies = get_user_currencies()  # Список валют из файла user_settings
