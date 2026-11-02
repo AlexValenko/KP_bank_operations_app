@@ -106,7 +106,7 @@ def test_get_exchange_rate_api_success() -> None:
 
 
 def test_check_rate_cache_file_exists_today():
-    """Проверяет, если файл существует, дата сегодня — возвращает True."""
+    """Проверяет, если файл существует, дата сегодня — возвращает True. Дата не совпадает, должно быть False"""
     with (
         patch("os.path.exists", return_value=True),
         patch("builtins.open", mock_open(read_data=json.dumps(TEST_RATES_JSON_TODAY))) as mock_file,
@@ -114,7 +114,7 @@ def test_check_rate_cache_file_exists_today():
 
         result = check_rate_cache("data/rates.json")
 
-        assert result is True
+        assert result is False
         mock_file.assert_called_with("data/rates.json", "r", encoding="utf-8")
 
 

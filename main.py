@@ -1,27 +1,29 @@
-import json
-import pandas as pd
-
-from src.utils import get_transaction_from_excel, get_cards_list_from_data, filter_transactions_by_date, filter_transactions_by_card, get_total_amount_and_cashback, get_top_transactions
-from src.views import get_greeting, get_main_page_data
-from src.external_api import get_user_currencies, get_exchange_rate_api, check_rate_cache, get_user_rates, get_user_stocks, get_current_stock_prices_api
-import datetime
+from src.reports import spending_by_category, spending_by_weekday
+from src.services import get_cashback_categories, investment_bank
+from src.utils import get_transaction_from_excel
+from src.views import get_main_page_data
 
 if __name__ == "__main__":
-    all_data_transactions = get_transaction_from_excel('tests/tests_data/transactions_test_excel.xlsx')
-    print(all_data_transactions)
-    # may_28 = datetime.datetime(year=2026, month=5, day=28)
-    # transactions_since_28_may = filter_transactions_by_date(df=all_data_transactions, start_date=may_28)
-    # print(transactions_since_28_may)
-    # transactions_card_3753 = filter_transactions_by_card(df=transactions_since_28_may, card_number='*3753')
-    # print(transactions_card_3753)
-    # print(get_total_amount_and_cashback(df=transactions_card_3753, standard_cashback=True))
-    # print(get_top_transactions_by_card(df=transactions_card_3753))
+    """Основная функциональность программы - выполняет основные функции программы -
+    считывает данные из файла XLSX,
+    выгружает данные для Веб-страницы 'Главная', формирует из них json-строку,
+    Выполняет функции из модулей "Сервисы" и "Отчеты", сохраняет результаты в переменные"""
 
-    # print(get_exchange_rate_api())
-    # print(check_rate_cache(cache_path='exchange_rate_cached.json'))
-    # print(get_main_page_data(current_date='2026-04-08 12:00:00', path_excel_file='data/operations.xlsx'))
+    # Получение json-строки для Главной страницы
+    main_page_data = get_main_page_data(current_date="2026-03-20 12:05:05", path_excel_file="data/operations.xlsx")
 
+    # Сервисы - получение ответов в json
+    all_data_transactions = get_transaction_from_excel("data/operations.xlsx")
+    # Получение суммы возможного кэшбека по категориям в выбранный месяц. Результат в json-строке
+    cashback_by_categories = get_cashback_categories(data=all_data_transactions, year=2026, month=3)
+    # Получение суммы, которую удалось бы отложить в «Инвесткопилку» в выбранный месяц. Результат в json-строке
+    investments = investment_bank(month="2026-03", transactions=all_data_transactions, limit=50)
 
+    # Отчеты. Функции возвращают DataFrame, декораторы записывают информацию в файлы data/*.json
 
-
-
+    # Функция возвращает траты по заданной категории за последние три месяца (от переданной даты)
+    current_category_spending = spending_by_category(
+        transactions=all_data_transactions, category="Медицина", date="01-05-2026"
+    )
+    # Функция возвращает средние траты в каждый из дней недели за последние три месяца
+    weekdays_spending = spending_by_weekday(transactions=all_data_transactions, date="01-05-2026")
